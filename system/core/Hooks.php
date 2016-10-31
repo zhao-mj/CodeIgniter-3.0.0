@@ -48,6 +48,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/libraries/encryption.html
  */
+/*
+$hook['pre_controller'] = array(
+    'class'    => 'MyClass',
+    'function' => 'Myfunction',
+    'filename' => 'Myclass.php',
+    'filepath' => 'hooks',
+    'params'   => array('beer', 'wine', 'snacks')
+);
+
+//使用 lambda 表达式/匿名函数(或闭包)作为钩子
+$hook['post_controller'] = function()
+{
+    
+};
+
+//多次调用同一个挂钩点
+$hook['pre_controller'][] = array(
+    'class'    => 'MyClass',
+    'function' => 'MyMethod',
+    'filename' => 'Myclass.php',
+    'filepath' => 'hooks',
+    'params'   => array('beer', 'wine', 'snacks')
+);
+
+$hook['pre_controller'][] = array(
+    'class'    => 'MyOtherClass',
+    'function' => 'MyOtherMethod',
+    'filename' => 'Myotherclass.php',
+    'filepath' => 'hooks',
+    'params'   => array('red', 'yellow', 'blue')
+);
+*/
 class CI_Hooks {
 
 	/**
@@ -131,7 +163,8 @@ class CI_Hooks {
 	 * @return	bool	TRUE on success or FALSE on failure
 	 */
 	public function call_hook($which = '')
-	{
+	{	
+		//判断$which hook是否设置
 		if ( ! $this->enabled OR ! isset($this->hooks[$which]))
 		{
 			return FALSE;
@@ -162,6 +195,7 @@ class CI_Hooks {
 	 * @param	array	$data	Hook details
 	 * @return	bool	TRUE on success or FALSE on failure
 	 */
+	//运行hook
 	protected function _run_hook($data)
 	{
 		// Closures/lambda functions and array($object, 'method') callables
@@ -222,8 +256,11 @@ class CI_Hooks {
 		if ($class !== FALSE)
 		{
 			// The object is stored?
+			// 已加载过此类？
 			if (isset($this->_objects[$class]))
 			{
+				
+				//判断该类是否拥有function方法
 				if (method_exists($this->_objects[$class], $function))
 				{
 					$this->_objects[$class]->$function($params);
@@ -235,6 +272,7 @@ class CI_Hooks {
 			}
 			else
 			{
+				//加载hook文件并初始化
 				class_exists($class, FALSE) OR require_once($filepath);
 
 				if ( ! class_exists($class, FALSE) OR ! method_exists($class, $function))
@@ -249,6 +287,7 @@ class CI_Hooks {
 		}
 		else
 		{
+			//hook 为函数
 			function_exists($function) OR require_once($filepath);
 
 			if ( ! function_exists($function))
