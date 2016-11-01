@@ -102,8 +102,9 @@ class CI_URI {
 
 		// If query strings are enabled, we don't need to parse any segments.
 		// However, they don't make sense under CLI.
+		//cli模式 或 开启重写模式
 		if (is_cli() OR $this->config->item('enable_query_strings') !== TRUE)
-		{
+		{	
 			$this->_permitted_uri_chars = $this->config->item('permitted_uri_chars');
 
 			// If it's a CLI request, ignore the configuration
@@ -165,7 +166,7 @@ class CI_URI {
 					$this->uri_string = substr($this->uri_string, 0, -$slen);
 				}
 			}
-
+			//解析参数
 			$this->segments[0] = NULL;
 			// Populate the segments array
 			foreach (explode('/', trim($this->uri_string, '/')) as $val)

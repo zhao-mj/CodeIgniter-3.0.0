@@ -162,11 +162,35 @@ class CI_Router {
 	 */
 	protected function _set_routing()
 	{
+
+		// Load the routes.php file.
+		//修复CI框架BUG，default_controller放在函数顶部进行初始化
+		//加载routes配置文件
+		if (file_exists(APPPATH.'config/routes.php'))
+		{
+			include(APPPATH.'config/routes.php');
+		}
+
+		if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/routes.php'))
+		{
+			include(APPPATH.'config/'.ENVIRONMENT.'/routes.php');
+		}
+
+		// Validate & get reserved routes
+		if (isset($route) && is_array($route))
+		{
+			isset($route['default_controller']) && $this->default_controller = $route['default_controller'];
+			isset($route['translate_uri_dashes']) && $this->translate_uri_dashes = $route['translate_uri_dashes'];
+			unset($route['default_controller'], $route['translate_uri_dashes']);
+			$this->routes = $route;
+		}
+
 		// Are query strings enabled in the config file? Normally CI doesn't utilize query strings
 		// since URI segments are more search-engine friendly, but they can optionally be used.
 		// If this feature is enabled, we will gather the directory/class/method a little differently
 		if ($this->enable_query_strings)
 		{
+			//未开启重写模式
 			$_d = $this->config->item('directory_trigger');
 			$_d = isset($_GET[$_d]) ? trim($_GET[$_d], " \t\n\r\0\x0B/") : '';
 			if ($_d !== '')
@@ -174,13 +198,13 @@ class CI_Router {
 				$this->uri->filter_uri($_d);
 				$this->set_directory($_d);
 			}
-
+			//获取control参数
 			$_c = trim($this->config->item('controller_trigger'));
 			if ( ! empty($_GET[$_c]))
 			{
 				$this->uri->filter_uri($_GET[$_c]);
 				$this->set_class($_GET[$_c]);
-
+				//获取方法
 				$_f = trim($this->config->item('function_trigger'));
 				if ( ! empty($_GET[$_f]))
 				{
@@ -203,7 +227,9 @@ class CI_Router {
 			return;
 		}
 
+		/*
 		// Load the routes.php file.
+		//加载routes配置文件
 		if (file_exists(APPPATH.'config/routes.php'))
 		{
 			include(APPPATH.'config/routes.php');
@@ -221,7 +247,7 @@ class CI_Router {
 			isset($route['translate_uri_dashes']) && $this->translate_uri_dashes = $route['translate_uri_dashes'];
 			unset($route['default_controller'], $route['translate_uri_dashes']);
 			$this->routes = $route;
-		}
+		}*/
 
 		// Is there anything to parse?
 		if ($this->uri->uri_string !== '')
@@ -288,6 +314,7 @@ class CI_Router {
 	 *
 	 * @return	void
 	 */
+	//设置访问默认控制器，由config/routes.php的$route['default_controller']控制
 	protected function _set_default_controller()
 	{
 		if (empty($this->default_controller))
