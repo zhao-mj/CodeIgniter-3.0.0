@@ -657,11 +657,16 @@ class CI_Output {
 		{
 			return FALSE;
 		}
-
+		/*
+			要取得共享锁定（读取的程序），将 lock 设为 LOCK_SH（PHP 4.0.1 以前的版本设置为 1）。
+			要取得独占锁定（写入的程序），将 lock 设为 LOCK_EX（PHP 4.0.1 以前的版本中设置为 2）。
+			要释放锁定（无论共享或独占），将 lock 设为 LOCK_UN（PHP 4.0.1 以前的版本中设置为 3）。
+			如果不希望 flock() 在锁定时堵塞，则给 lock 加上 LOCK_NB（PHP 4.0.1 以前的版本中设置为 4）。
+		 */
 		flock($fp, LOCK_SH);
 
 		$cache = (filesize($filepath) > 0) ? fread($fp, filesize($filepath)) : '';
-
+		//释放锁
 		flock($fp, LOCK_UN);
 		fclose($fp);
 
@@ -676,6 +681,7 @@ class CI_Output {
 
 		$last_modified = filemtime($cache_path);
 
+		//判断缓存是否失效
 		// Has the file expired?
 		if ($_SERVER['REQUEST_TIME'] >= $expire && is_really_writable($cache_path))
 		{

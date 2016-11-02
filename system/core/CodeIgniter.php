@@ -132,8 +132,11 @@ if ( ! is_php('5.4'))
  *  Define a custom error handler so we can log PHP errors
  * ------------------------------------------------------
  */
+	//设置自定义错误回调函数(系统报错或调用trigger_error触发)
 	set_error_handler('_error_handler');
+	//设置自定义异常回调函数
 	set_exception_handler('_exception_handler');
+	//脚本关闭回调函数
 	register_shutdown_function('_shutdown_handler');
 
 /*
@@ -185,6 +188,7 @@ if ( ! is_php('5.4'))
  *  Start the timer... tick tock tick tock...
  * ------------------------------------------------------
  */
+	//基准测试单元
 	$BM =& load_class('Benchmark', 'core');
 	$BM->mark('total_execution_time_start');
 	$BM->mark('loading_time:_base_classes_start');
@@ -194,6 +198,7 @@ if ( ! is_php('5.4'))
  *  Instantiate the hooks class
  * ------------------------------------------------------
  */
+	//加载钩子模块
 	$EXT =& load_class('Hooks', 'core');
 
 /*
@@ -201,6 +206,7 @@ if ( ! is_php('5.4'))
  *  Is there a "pre_system" hook?
  * ------------------------------------------------------
  */
+	//调用pre_system钩子模块
 	$EXT->call_hook('pre_system');
 
 /*
@@ -298,6 +304,7 @@ if ( ! is_php('5.4'))
  *  Instantiate the URI class
  * ------------------------------------------------------
  */
+	//加载URI类
 	$URI =& load_class('URI', 'core');
 
 /*
@@ -305,6 +312,7 @@ if ( ! is_php('5.4'))
  *  Instantiate the routing class and set the routing
  * ------------------------------------------------------
  */
+	//加载路由
 	$RTR =& load_class('Router', 'core', isset($routing) ? $routing : NULL);
 
 /*
@@ -319,6 +327,7 @@ if ( ! is_php('5.4'))
  *	Is there a valid cache file? If so, we're done...
  * ------------------------------------------------------
  */
+	//判断静态文件是否存在
 	if ($EXT->call_hook('cache_override') === FALSE && $OUT->_display_cache($CFG, $URI) === TRUE)
 	{
 		exit;
@@ -407,12 +416,25 @@ if ( ! is_php('5.4'))
 	{
 		require_once(APPPATH.'controllers/'.$RTR->directory.$class.'.php');
 
+		//加载function的流程
+		//优先判断_remap 函数是否存在,如存在，则调用;倘若不存在,判断controller类是否存在该方法
 		if ( ! class_exists($class, FALSE) OR $method[0] === '_' OR method_exists('CI_Controller', $method))
 		{
 			$e404 = TRUE;
 		}
 		elseif (method_exists($class, '_remap'))
 		{
+			///
+			/*
+			_remap的功能如下：
+			1，改变URL，隐藏方法，
+				比如你的应用中，原来的URL方法是：
+				http://anmsaiful.net/blog/display_successful_message
+				现在想改变显示的方法名为：
+				http://anmsaiful.net/blog/successful
+				但显示虽然是successful，但实际上是调用存在的display_successful_message
+			2. 可以借这个函数做简单的函数方法控制,比如权限控制
+			*/
 			$params = array($method, array_slice($URI->rsegments, 2));
 			$method = '_remap';
 		}
@@ -497,6 +519,7 @@ if ( ! is_php('5.4'))
 	// Mark a start point so we can benchmark the controller
 	$BM->mark('controller_execution_time_( '.$class.' / '.$method.' )_start');
 
+	//初始化controller
 	$CI = new $class();
 
 /*
@@ -511,6 +534,7 @@ if ( ! is_php('5.4'))
  *  Call the requested method
  * ------------------------------------------------------
  */
+	//回调方法
 	call_user_func_array(array(&$CI, $method), $params);
 
 	// Mark a benchmark end point
