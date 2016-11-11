@@ -181,12 +181,14 @@ class CI_Security {
 			}
 
 			// Append application specific cookie prefix
+			//csrf cookie名
 			if ($cookie_prefix = config_item('cookie_prefix'))
 			{
 				$this->_csrf_cookie_name = $cookie_prefix.$this->_csrf_cookie_name;
 			}
 
 			// Set the CSRF hash
+			//生成csrf hash
 			$this->_csrf_set_hash();
 		}
 
@@ -567,6 +569,7 @@ class CI_Security {
 	 * @param	int	$length	Output length
 	 * @return	string
 	 */
+	//生成hash key
 	public function get_random_bytes($length)
 	{
 		if (empty($length) OR ! ctype_digit((string) $length))
@@ -575,12 +578,14 @@ class CI_Security {
 		}
 
 		// Unfortunately, none of the following PRNGs is guaranteed to exist ...
+		//mcrypt_create_iv 函数默认/dev/random设备获取随机数据源的 这在系统并发数较高时，系统无法提供足够的中断数，会导致访问进程挂起（锁住），从而无法正常响应。
+		//mcrypt_create_iv 的第二个参数 指定为 MCRYPT_DEV_URANDOM时，是强制使用/dev/urandom设备的随机数据流
 		if (defined('MCRYPT_DEV_URANDOM') && ($output = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM)) !== FALSE)
 		{
 			return $output;
 		}
 
-
+		// /dev/urandom 随机生成器，相比/dev/random设备， /dev/urandom读取速度要由于前者，而且不会出现卡顿的情况 
 		if (is_readable('/dev/urandom') && ($fp = fopen('/dev/urandom', 'rb')) !== FALSE)
 		{
 			// Try not to waste entropy ...
