@@ -77,6 +77,7 @@ class CI_Driver_Library {
 	public function __get($child)
 	{
 		// Try to load the driver
+		//加载类库
 		return $this->load_driver($child);
 	}
 
@@ -183,7 +184,9 @@ class CI_Driver_Library {
 		}
 
 		// Instantiate, decorate and add child
+		//实例化child对象
 		$obj = new $class_name();
+		//此处 调用Cache_XX::decorate 例如:Cache_apc::decorate
 		$obj->decorate($this);
 		$this->$child = $obj;
 		return $this->$child;
@@ -247,12 +250,12 @@ class CI_Driver {
 	public function decorate($parent)
 	{
 		$this->_parent = $parent;
-
 		// Lock down attributes to what is defined in the class
 		// and speed up references in magic methods
 
 		$class_name = get_class($parent);
 
+		//利用反射机制 获取Cache_Cache类的公共方法及属性
 		if ( ! isset(self::$_reflections[$class_name]))
 		{
 			$r = new ReflectionObject($parent);
@@ -294,6 +297,7 @@ class CI_Driver {
 	 */
 	public function __call($method, $args = array())
 	{
+		//检测$method 是否 在$this->_methods中
 		if (in_array($method, $this->_methods))
 		{
 			return call_user_func_array(array($this->_parent, $method), $args);
@@ -314,6 +318,7 @@ class CI_Driver {
 	 */
 	public function __get($var)
 	{
+		//获取属性
 		if (in_array($var, $this->_properties))
 		{
 			return $this->_parent->$var;
@@ -333,6 +338,7 @@ class CI_Driver {
 	 */
 	public function __set($var, $val)
 	{
+		//设置属性值
 		if (in_array($var, $this->_properties))
 		{
 			$this->_parent->$var = $val;

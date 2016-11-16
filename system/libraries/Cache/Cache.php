@@ -116,13 +116,14 @@ class CI_Cache extends CI_Driver_Library {
 		}
 
 		isset($config['key_prefix']) && $this->key_prefix = $config['key_prefix'];
-
+		//设置备用缓存
 		if (isset($config['backup']) && in_array($config['backup'], $this->valid_drivers))
 		{
 			$this->_backup_driver = $config['backup'];
 		}
 
 		// If the specified adapter isn't available, check the backup.
+		//如果当前的缓存机制无法使用，则启用备用缓存
 		if ( ! $this->is_supported($this->_adapter))
 		{
 			if ( ! $this->is_supported($this->_backup_driver))
@@ -265,6 +266,7 @@ class CI_Cache extends CI_Driver_Library {
 
 		if ( ! isset($support[$driver]))
 		{
+			//此处 会调用CI_Driver_Library::__get($child) 方法
 			$support[$driver] = $this->{$driver}->is_supported();
 		}
 
