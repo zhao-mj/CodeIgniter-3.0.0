@@ -596,12 +596,14 @@ class CI_Input {
 	protected function _sanitize_globals()
 	{
 		// Is $_GET data allowed? If not we'll set the $_GET to an empty array
+		//是否允许接受GET参数
 		if ($this->_allow_get_array === FALSE)
 		{
 			$_GET = array();
 		}
 		elseif (is_array($_GET) && count($_GET) > 0)
 		{
+			//对$_GET参数进行过滤
 			foreach ($_GET as $key => $val)
 			{
 				$_GET[$this->_clean_input_keys($key)] = $this->_clean_input_data($val);
@@ -609,6 +611,7 @@ class CI_Input {
 		}
 
 		// Clean $_POST Data
+		//$_POST 参数进行过滤
 		if (is_array($_POST) && count($_POST) > 0)
 		{
 			foreach ($_POST as $key => $val)
@@ -618,6 +621,7 @@ class CI_Input {
 		}
 
 		// Clean $_COOKIE Data
+		//$_COOKE 对COOKIE值进行检测
 		if (is_array($_COOKIE) && count($_COOKIE) > 0)
 		{
 			// Also get rid of specially treated cookies that might be set by a server
@@ -647,7 +651,7 @@ class CI_Input {
 		// Sanitize PHP_SELF
 		$_SERVER['PHP_SELF'] = strip_tags($_SERVER['PHP_SELF']);
 
-		// CSRF Protection check
+		// CSRF 认证
 		if ($this->_enable_csrf === TRUE && ! is_cli())
 		{
 			$this->security->csrf_verify();
@@ -684,6 +688,7 @@ class CI_Input {
 		   NOTE: In PHP 5.4 get_magic_quotes_gpc() will always return 0 and
 			 it will probably not exist in future versions at all.
 		*/
+		//是否开启自动转义功能
 		if ( ! is_php('5.4') && get_magic_quotes_gpc())
 		{
 			$str = stripslashes($str);
@@ -797,6 +802,7 @@ class CI_Input {
 	 * @param	bool		$xss_clean	Whether to apply XSS filtering
 	 * @return	string|null	The requested header on success or NULL on failure
 	 */
+	//获取请求头
 	public function get_request_header($index, $xss_clean = FALSE)
 	{
 		if (empty($this->headers))
@@ -854,6 +860,7 @@ class CI_Input {
 	 *				(default: FALSE)
 	 * @return 	string
 	 */
+	//获取请求类型 'GET'、'POST'、PUT、DELETE、PATCH等 
 	public function method($upper = FALSE)
 	{
 		return ($upper)

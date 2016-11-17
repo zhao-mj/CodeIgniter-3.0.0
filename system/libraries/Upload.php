@@ -309,7 +309,8 @@ class CI_Upload {
 	 * @return	CI_Upload
 	 */
 	public function initialize(array $config = array(), $reset = TRUE)
-	{
+	{	
+		//利用反射设置各属性值
 		$reflection = new ReflectionClass($this);
 
 		if ($reset === TRUE)
